@@ -25,6 +25,24 @@ func (c *Client) UserHasTracks(ids ...ID) ([]bool, error) {
 	return result, err
 }
 
+// UserHasAlbums checks if one or more tracks are saved to the current user's
+// "Your Music" library.
+func (c *Client) UserHasAlbums(ids ...ID) ([]bool, error) {
+	if l := len(ids); l == 0 || l > 50 {
+		return nil, errors.New("spotify: UserHasAlbums supports 1 to 50 IDs per call")
+	}
+	spotifyURL := fmt.Sprintf("%sme/albums/contains?ids=%s", c.baseURL, strings.Join(toStringSlice(ids), ","))
+
+	var result []bool
+
+	err := c.get(spotifyURL, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, err
+}
+
 // AddTracksToLibrary saves one or more tracks to the current user's
 // "Your Music" library.  This call requires the ScopeUserLibraryModify scope.
 // A track can only be saved once; duplicate IDs are ignored.
